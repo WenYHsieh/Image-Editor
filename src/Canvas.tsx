@@ -13,6 +13,7 @@ const Canvas = () => {
   // 滑鼠的模式：筆刷或是選取
   const [isDrawingMode, setIsDrawingMode] = React.useState(false)
 
+  // 一般模式跟畫圖模式間切換
   const handleToggleDrawingMode = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
@@ -22,6 +23,7 @@ const Canvas = () => {
     }
   }
 
+  // 取消畫圖模式
   const closeDrawingMode = () => {
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
@@ -75,10 +77,28 @@ const Canvas = () => {
       addRectangle(options.e.clientX, options.e.clientY)
   }
 
+  // 清除全部的物件
   const clearCanvas = () => {
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
       fabricInstance.clear()
+    }
+  }
+
+  // 清除選擇的物件
+  const removeObject = () => {
+    const fabricInstance = fabricRef.current
+    if (!fabricInstance) return
+    const active = fabricInstance.getActiveObject()
+    if (active) {
+      fabricInstance.remove(active)
+      if (active.type == 'activeSelection') {
+        const objects = (active as fabric.ActiveSelection).getObjects()
+        objects.forEach((object: fabric.Object) =>
+          fabricInstance.remove(object)
+        )
+        fabricInstance.discardActiveObject().renderAll()
+      }
     }
   }
 
@@ -177,7 +197,7 @@ const Canvas = () => {
       >
         新增文字
       </button>
-      寬度{' '}
+      寬度
       <input
         type='range'
         min='1'
@@ -186,6 +206,7 @@ const Canvas = () => {
         onChange={handleWidthChange}
       ></input>
       <button onClick={clearCanvas}>清除畫布</button>
+      <button onClick={removeObject}>清除選擇物件</button>
     </>
   )
 }
