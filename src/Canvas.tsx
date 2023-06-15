@@ -1,30 +1,44 @@
 import React from 'react'
 import { fabric } from 'fabric'
 
+type DBTargets = 'rect' | 'text'
+
 const Canvas = () => {
   const fabricRef = React.useRef<fabric.Canvas | null>(null)
-  const canvasRef = React.useRef(null)
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const [currentColor, setCurrentColor] = React.useState('#8989D1')
+  const [currentWidth, setCurrentWidth] = React.useState(5)
+  const [dbClickTarget, setDBClickTarget] = React.useState<DBTargets>()
+
   // 滑鼠的模式：筆刷或是選取
   const [isDrawingMode, setIsDrawingMode] = React.useState(false)
 
-  const handleToggleDrawingMode = () => {
+  const handleToggleDrawingMode = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
-      fabricInstance.isDrawingMode = !fabricInstance.isDrawingMode
+      const mode = e.target.value
+      fabricInstance.isDrawingMode = mode === 'draw'
       setIsDrawingMode(fabricInstance.isDrawingMode)
     }
   }
+
+  const closeDrawingMode = () => {
+    const fabricInstance = fabricRef.current
+    if (fabricInstance) {
+      fabricInstance.isDrawingMode = false
+      setIsDrawingMode(false)
+    }
+  }
   // 新增方形
-  const addRectangle = (color: string, left: number, top: number) => {
+  const addRectangle = (left: number, top: number) => {
     const fabricInstance = fabricRef.current as fabric.Canvas
 
     const rect = new fabric.Rect({
-      top,
-      left,
+      top: top - 25,
+      left: left - 25,
       width: 50,
       height: 50,
-      fill: color,
+      fill: currentColor,
     })
 
     fabricInstance.add(rect)
@@ -34,7 +48,11 @@ const Canvas = () => {
   const addTextbox = (left: number, top: number) => {
     const fabricInstance = fabricRef.current as fabric.Canvas
 
-    const text = new fabric.Textbox('文字', { left, top })
+    const text = new fabric.Textbox('文字', {
+      top: top - 25,
+      left: left - 25,
+      fill: currentColor,
+    })
     fabricInstance.add(text)
   }
 
@@ -43,44 +61,25 @@ const Canvas = () => {
     setCurrentColor((e.target as HTMLInputElement).value)
   }
 
-  const handleAddMaterial = () => {
-    if (!fabricRef.current) return
+  // 選寬度
+  const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentWidth(parseInt((e.target as HTMLInputElement).value))
+  }
 
-    const fabricInstance = fabricRef.current as fabric.Canvas
-    let startPoint = null as null | { x: number; y: number }
-    let rect = null as null | fabric.Rect
+  // 雙擊事件處理
+  const dbClickHandler = (options: any) => {
+    if (options.target) return
+    if (dbClickTarget === 'text')
+      addTextbox(options.e.clientX, options.e.clientY)
+    if (dbClickTarget === 'rect')
+      addRectangle(options.e.clientX, options.e.clientY)
+  }
 
-    fabricInstance.on('mouse:down', (event) => {
-      // 如果座標有東西了就不繼續產生
-      if (event.target) return
-      startPoint = fabricInstance.getPointer(event.e)
-      rect = new fabric.Rect({
-        left: startPoint.x,
-        top: startPoint.y,
-        width: 0,
-        height: 0,
-        fill: 'transparent',
-        stroke: currentColor,
-        strokeWidth: 2,
-      })
-      fabricInstance.add(rect)
-    })
-
-    fabricInstance.on('mouse:move', (event) => {
-      if (!startPoint || event.target) return
-
-      const currentPoint = fabricInstance.getPointer(event.e)
-      const width = currentPoint.x - startPoint.x
-      const height = currentPoint.y - startPoint.y
-
-      rect.set({ width, height })
-      fabricInstance.renderAll()
-    })
-
-    fabricInstance.on('mouse:up', () => {
-      startPoint = null
-      rect = null
-    })
+  const clearCanvas = () => {
+    const fabricInstance = fabricRef.current
+    if (fabricInstance) {
+      fabricInstance.clear()
+    }
   }
 
   React.useEffect(() => {
@@ -91,8 +90,18 @@ const Canvas = () => {
         isDrawingMode,
       })
     }
+    const initBrush = () => {
+      if (!fabricRef.current) return
+      const brush = new fabric.PencilBrush(fabricRef.current)
+
+      // 設置筆刷的顏色和粗細
+      brush.color = currentColor
+      brush.width = currentWidth
+      fabricRef.current.freeDrawingBrush = brush
+    }
 
     initFabric()
+    initBrush()
 
     const disposeFabric = () => {
       const fabricInstance = fabricRef.current as fabric.Canvas
@@ -107,14 +116,28 @@ const Canvas = () => {
   React.useEffect(() => {
     if (!fabricRef.current) return
 
-    // 在雙擊位置新增文字方塊
-    fabricRef.current.on('mouse:dblclick', (options) => {
-      if (options.target) return
-      addTextbox(options.e.clientX, options.e.clientY)
-    })
+    const fabricInstance = fabricRef.current as fabric.Canvas
 
-    handleAddMaterial()
-  }, [currentColor])
+    // 在雙擊位置新增文字方塊
+    fabricInstance.on('mouse:dblclick', dbClickHandler)
+
+    return () => {
+      fabricInstance.off('mouse:dblclick', dbClickHandler)
+    }
+  }, [currentColor, dbClickTarget])
+
+  React.useEffect(() => {
+    // 賦值的左手邊不能有問號（optional)
+
+    const fabricInstance = fabricRef.current
+    if (fabricInstance) {
+      const brush = fabricInstance.freeDrawingBrush
+      if (brush) brush.color = currentColor
+      if (brush) brush.width = currentWidth
+    }
+  }, [currentColor, currentWidth])
+
+  React.useEffect
 
   return (
     <>
@@ -130,9 +153,39 @@ const Canvas = () => {
         value={currentColor}
         onChange={handleColorPick}
       ></input>
-      <button onClick={handleToggleDrawingMode}>
-        {isDrawingMode ? '一般模式' : '畫圖模式'}
+      <select id='mode' onChange={handleToggleDrawingMode}>
+        <option value='default' selected={!isDrawingMode}>
+          一般模式
+        </option>
+        <option value='draw' selected={isDrawingMode}>
+          畫圖模式
+        </option>
+      </select>
+      <button
+        onClick={() => {
+          setDBClickTarget('rect')
+          closeDrawingMode()
+        }}
+      >
+        新增方形
       </button>
+      <button
+        onClick={() => {
+          setDBClickTarget('text')
+          closeDrawingMode()
+        }}
+      >
+        新增文字
+      </button>
+      寬度{' '}
+      <input
+        type='range'
+        min='1'
+        max='100'
+        value={currentWidth}
+        onChange={handleWidthChange}
+      ></input>
+      <button onClick={clearCanvas}>清除畫布</button>
     </>
   )
 }
