@@ -1,5 +1,6 @@
 import React from 'react'
 import { fabric } from 'fabric'
+import ImageStorage from './ImageStorage'
 
 type DBTargets = 'rect' | 'text'
 
@@ -173,13 +174,13 @@ const Canvas = () => {
         value={currentColor}
         onChange={handleColorPick}
       ></input>
-      <select id='mode' onChange={handleToggleDrawingMode}>
-        <option value='default' selected={!isDrawingMode}>
-          一般模式
-        </option>
-        <option value='draw' selected={isDrawingMode}>
-          畫圖模式
-        </option>
+      <select
+        id='mode'
+        onChange={handleToggleDrawingMode}
+        defaultValue={isDrawingMode ? 'draw' : 'default'}
+      >
+        <option value='default'>一般模式</option>
+        <option value='draw'>畫圖模式</option>
       </select>
       <button
         onClick={() => {
@@ -207,6 +208,7 @@ const Canvas = () => {
       ></input>
       <button onClick={clearCanvas}>清除畫布</button>
       <button onClick={removeObject}>清除選擇物件</button>
+      <ImageStorage />
     </>
   )
 }
