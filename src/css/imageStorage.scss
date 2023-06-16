@@ -34,6 +34,10 @@
         height: 20%;
       }
 
+      [draggable='true'] {
+        cursor: move;
+      }
+
       img {
         width: 100%;
         height: 80%;

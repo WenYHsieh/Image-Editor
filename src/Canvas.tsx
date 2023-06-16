@@ -103,6 +103,25 @@ const Canvas = () => {
     }
   }
 
+  // 放下圖片，把他加到 canvas
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!fabricRef.current) return
+    const id = event.dataTransfer.getData('text/plain')
+    const img = document.getElementById(id) as HTMLImageElement
+
+    const newImage = new fabric.Image(img, {
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+      left: event.clientX,
+      top: event.clientY,
+      scaleX: 0.5,
+      scaleY: 0.5,
+    })
+
+    fabricRef.current.add(newImage)
+    return false
+  }
+
   React.useEffect(() => {
     if (!fabricRef) return
     // 初始化 fabric
@@ -162,12 +181,14 @@ const Canvas = () => {
 
   return (
     <>
-      <canvas
-        ref={canvasRef}
-        width='800px'
-        height='500px'
-        style={{ border: '1px solid #a0a0a0' }}
-      />
+      <div onDrop={handleDrop}>
+        <canvas
+          ref={canvasRef}
+          width='800px'
+          height='500px'
+          style={{ border: '1px solid #a0a0a0' }}
+        />
+      </div>
       <input
         type='color'
         id='colorpicker'

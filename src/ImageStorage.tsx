@@ -5,6 +5,7 @@ type UploadedImage = {
   name: string
   imgDataURL: string
 }
+
 const ImageStorage = () => {
   const imageStorageRef = React.useRef(null)
   const [uploadedImage, setUploadedImage] = React.useState<
@@ -51,15 +52,22 @@ const ImageStorage = () => {
     handleUploadFile(event.dataTransfer)
   }
 
+  const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    event.dataTransfer.setData(
+      'text/plain',
+      (event.target as HTMLDivElement).id
+    )
+  }
+
   const renderImageBlocks = () => {
     if (uploadedImage.length === 0) return <></>
     return (
-      <div className='image__blocks'>
+      <div className='image__blocks' onDragStart={handleDragStart}>
         {uploadedImage?.map(({ name, imgDataURL }) => {
           return (
             <div className='image__block'>
               <label>{name}</label>
-              <img src={imgDataURL}></img>
+              <img id={name} src={imgDataURL} draggable='true'></img>
             </div>
           )
         })}
@@ -68,21 +76,23 @@ const ImageStorage = () => {
   }
 
   return (
-    <div
-      ref={imageStorageRef}
-      className='imageStorage__wrapper'
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      {/* 拖曳或點選區塊以上傳 */}
-      <input
-        type='file'
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          handleUploadFile(event.target)
-        }
-      ></input>
-      {renderImageBlocks()}
-    </div>
+    <>
+      <div
+        ref={imageStorageRef}
+        className='imageStorage__wrapper'
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {/* 拖曳或點選區塊以上傳 */}
+        <input
+          type='file'
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            handleUploadFile(event.target)
+          }
+        ></input>
+        {renderImageBlocks()}
+      </div>
+    </>
   )
 }
 
