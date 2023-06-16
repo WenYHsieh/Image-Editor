@@ -177,8 +177,6 @@ const Canvas = () => {
     }
   }, [currentColor, currentWidth])
 
-  React.useEffect
-
   return (
     <>
       <div onDrop={handleDrop}>
