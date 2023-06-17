@@ -65,6 +65,9 @@ const Canvas = React.forwardRef(
         top: top - 25,
         left: left - 25,
         fill: currentColor,
+        // TODO 可以想一下 UI 怎放比較合理
+        textBackgroundColor: 'red',
+        backgroundColor: 'green',
       })
       fabricInstance.add(text)
     }
