@@ -7,7 +7,7 @@ type Props = {
 const SaveFileBlock = ({ fabricRef }: Props) => {
   const fileNameRef = React.useRef(null)
   const saveAsName = () => {
-    if (!fileNameRef.current) return
+    if (!fileNameRef.current || !fabricRef.current) return
 
     // format:  Either "jpeg" or "png"
     const dataURL = fabricRef.current.toDataURL({ format: 'png' })

@@ -8,7 +8,13 @@ type Props = {
 
 const Canvas = React.forwardRef(
   ({ fabricRef }: Props, ref: ForwardedRef<HTMLCanvasElement>) => {
-    const canvasRef = ref
+    if (typeof ref === 'function') {
+      throw new Error(
+        `Only React Refs that are created with createRef or useRef are supported`
+      )
+    }
+
+    // const canvasRef = ref
     const [currentColor, setCurrentColor] = React.useState('#8989D1')
     const [currentWidth, setCurrentWidth] = React.useState(5)
     const [dbClickTarget, setDBClickTarget] = React.useState<DBTargets>()
@@ -65,7 +71,15 @@ const Canvas = React.forwardRef(
 
     // 選色
     const handleColorPick = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setCurrentColor((e.target as HTMLInputElement).value)
+      const newColor = (e.target as HTMLInputElement).value
+      setCurrentColor(newColor)
+
+      if (!fabricRef.current) return
+      const activeObject = fabricRef.current.getActiveObject()
+      if (activeObject) {
+        activeObject.set('fill', newColor)
+        fabricRef.current.renderAll()
+      }
     }
 
     // 選寬度
@@ -95,6 +109,7 @@ const Canvas = React.forwardRef(
       const fabricInstance = fabricRef.current
       if (!fabricInstance) return
       const active = fabricInstance.getActiveObject()
+
       if (active) {
         fabricInstance.remove(active)
         if (active.type == 'activeSelection') {
@@ -127,10 +142,10 @@ const Canvas = React.forwardRef(
     }
 
     React.useEffect(() => {
-      if (!fabricRef) return
       // 初始化 fabric
       const initFabric = () => {
-        fabricRef.current = new fabric.Canvas(canvasRef.current, {
+        if (!fabricRef || ref === null) return
+        fabricRef.current = new fabric.Canvas(ref?.current, {
           isDrawingMode,
         })
       }
@@ -186,7 +201,7 @@ const Canvas = React.forwardRef(
         <div onDrop={handleDrop}>
           <canvas
             id='canvas'
-            ref={canvasRef}
+            ref={ref}
             width='800px'
             height='500px'
             style={{ border: '1px solid #a0a0a0' }}
