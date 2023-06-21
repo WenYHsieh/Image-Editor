@@ -66,8 +66,8 @@ const Canvas = React.forwardRef(
         left: left - 25,
         fill: currentColor,
         // TODO 可以想一下 UI 怎放比較合理
-        textBackgroundColor: 'red',
-        backgroundColor: 'green',
+        // textBackgroundColor: 'red',
+        // backgroundColor: 'green',
       })
       fabricInstance.add(text)
     }
@@ -121,6 +121,30 @@ const Canvas = React.forwardRef(
             fabricInstance.remove(object)
           )
           fabricInstance.discardActiveObject().renderAll()
+        }
+      }
+    }
+
+    const handleLayoutControl = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const fabricInstance = fabricRef.current
+
+      if (fabricInstance) {
+        const activeObject = fabricInstance?.getActiveObject()
+        if (!activeObject) return
+        const layerControlValue = e.target.value
+        console.log(fabricInstance, activeObject)
+        switch (layerControlValue) {
+          case 'toFront':
+            fabricInstance.bringToFront(activeObject)
+            break
+          case 'toBack':
+            fabricInstance.sendToBack(activeObject)
+            break
+          case 'toForward':
+            fabricInstance.bringForward(activeObject)
+            break
+          case 'toBackward':
+            fabricInstance.sendBackwards(activeObject)
         }
       }
     }
@@ -182,6 +206,7 @@ const Canvas = React.forwardRef(
 
       // 在雙擊位置新增文字方塊
       fabricInstance.on('mouse:dblclick', dbClickHandler)
+      //TODO 取消選擇的物件帶到最上層的動作
 
       return () => {
         fabricInstance.off('mouse:dblclick', dbClickHandler)
@@ -250,6 +275,17 @@ const Canvas = React.forwardRef(
         ></input>
         <button onClick={clearCanvas}>清除畫布</button>
         <button onClick={removeObject}>清除選擇物件</button>
+        <select
+          id='layerControl'
+          onChange={handleLayoutControl}
+          defaultValue='default'
+        >
+          <option value='default'>設定圖層</option>
+          <option value='toFront'>到最前面</option>
+          <option value='toBack'>到最後面</option>
+          <option value='toForward'>向前一層</option>
+          <option value='toBackward'>向後一層</option>
+        </select>
       </>
     )
   }
