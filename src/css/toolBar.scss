@@ -1,0 +1,34 @@
+.toolBar {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  background-color: #262626;
+  color: #cdcfeb;
+  padding: 8px 16px;
+  margin-right: 16px;
+
+  .toolGroup {
+    margin: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    button {
+      background-color: transparent;
+      border: none;
+      width: 30px;
+      height: 30px;
+      color: #cdcfeb;
+      border-radius: 3px;
+
+      &:not(:first-child) {
+        margin-left: 8px;
+      }
+
+      &:hover {
+        background-color: #cdcfeb92;
+        color: #262626;
+      }
+    }
+  }
+}

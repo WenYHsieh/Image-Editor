@@ -1,12 +1,11 @@
 .imageStorage__wrapper {
-  width: 800px;
-  height: 200px;
-  border: 2px dashed #292939;
+  width: 350px;
+  height: 95vh;
   background-color: #8989d15a;
   transition: 0.7s;
-  margin-top: 20px;
   position: relative;
-  overflow-x: auto;
+  overflow-y: auto;
+  margin-left: 16px;
 
   &:hover {
     opacity: 0.7;
@@ -23,6 +22,7 @@
     position: absolute;
     top: 0;
     display: flex;
+    flex-direction: column;
     overflow-x: auto;
 
     .image__block {

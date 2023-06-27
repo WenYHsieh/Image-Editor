@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  height: 100vh;
+
+  .layout {
+    display: flex;
+    justify-content: space-between;
+
+    .canvas__wrapper {
+      transform: translateY(10%);
+      // box-shadow: rgba(0, 0, 0, 0.12) 0px 0px 9px 2px inset;
+    }
+  }
+}
