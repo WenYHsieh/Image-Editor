@@ -17,6 +17,7 @@ const Canvas = React.forwardRef(
     // const canvasRef = ref
     const [currentColor, setCurrentColor] = React.useState('#8989D1')
     const [currentWidth, setCurrentWidth] = React.useState(5)
+    const [currentOpacity, setCurrentOpacity] = React.useState(10)
     const [dbClickTarget, setDBClickTarget] = React.useState<DBTargets>()
 
     // 滑鼠的模式：筆刷或是選取
@@ -52,9 +53,12 @@ const Canvas = React.forwardRef(
         width: 50,
         height: 50,
         fill: currentColor,
+        opacity: 0.7,
       })
 
       fabricInstance.add(rect)
+      // 綁定在選得時取得一些關於這 object 的資訊，之後要用來對應渲染到工具列上
+      rect.on('selected', handleObjectSelection)
     }
 
     // 新增文字方塊
@@ -65,7 +69,7 @@ const Canvas = React.forwardRef(
         top: top - 25,
         left: left - 25,
         fill: currentColor,
-        // TODO 可以想一下 UI 怎放比較合理
+
         // textBackgroundColor: 'red',
         // backgroundColor: 'green',
       })
@@ -88,6 +92,11 @@ const Canvas = React.forwardRef(
     // 選寬度
     const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setCurrentWidth(parseInt((e.target as HTMLInputElement).value))
+    }
+
+    // 選透明度
+    const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCurrentOpacity(parseInt((e.target as HTMLInputElement).value))
     }
 
     // 雙擊事件處理
@@ -132,7 +141,7 @@ const Canvas = React.forwardRef(
         const activeObject = fabricInstance?.getActiveObject()
         if (!activeObject) return
         const layerControlValue = e.target.value
-        console.log(fabricInstance, activeObject)
+
         switch (layerControlValue) {
           case 'toFront':
             fabricInstance.bringToFront(activeObject)
@@ -168,6 +177,16 @@ const Canvas = React.forwardRef(
       return false
     }
 
+    const handleObjectSelection = (event: fabric.IEvent) => {
+      const activeObject = event.target as fabric.Object
+
+      const color = activeObject?.fill as string
+      const opacity = activeObject?.opacity as number
+
+      setCurrentColor(color)
+      setCurrentOpacity(opacity * 10)
+    }
+
     React.useEffect(() => {
       // 初始化 fabric
       const initFabric = () => {
@@ -194,15 +213,15 @@ const Canvas = React.forwardRef(
 
         fabricInstance.dispose()
       }
+
       return () => {
         disposeFabric()
       }
     }, [])
 
     React.useEffect(() => {
-      if (!fabricRef.current) return
-
       const fabricInstance = fabricRef.current as fabric.Canvas
+      if (!fabricInstance) return
 
       // 在雙擊位置新增文字方塊
       fabricInstance.on('mouse:dblclick', dbClickHandler)
@@ -219,10 +238,24 @@ const Canvas = React.forwardRef(
       const fabricInstance = fabricRef.current
       if (fabricInstance) {
         const brush = fabricInstance.freeDrawingBrush
-        if (brush) brush.color = currentColor
-        if (brush) brush.width = currentWidth
+        if (brush) {
+          brush.color = currentColor
+          brush.width = currentWidth
+        }
       }
     }, [currentColor, currentWidth])
+
+    React.useEffect(() => {
+      const fabricInstance = fabricRef.current
+      if (fabricInstance) {
+        const activeObject = fabricInstance.getActiveObject()
+        if (!activeObject) return
+        if (activeObject.get('type') !== 'rect') return
+
+        activeObject.opacity = currentOpacity / 10
+        fabricInstance.renderAll()
+      }
+    }, [currentOpacity])
 
     return (
       <>
@@ -272,6 +305,14 @@ const Canvas = React.forwardRef(
           max='100'
           value={currentWidth}
           onChange={handleWidthChange}
+        ></input>
+        透明度
+        <input
+          type='range'
+          min='1'
+          max='10'
+          value={currentOpacity}
+          onChange={handleOpacityChange}
         ></input>
         <button onClick={clearCanvas}>清除畫布</button>
         <button onClick={removeObject}>清除選擇物件</button>
