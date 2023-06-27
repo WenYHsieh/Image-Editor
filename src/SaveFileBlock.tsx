@@ -8,17 +8,19 @@ const SaveFileBlock = ({ fabricRef }: Props) => {
   const fileNameRef = React.useRef(null)
   const saveAsName = () => {
     if (!fileNameRef.current || !fabricRef.current) return
+    const fileNameInputEle = fileNameRef.current as HTMLInputElement
 
     // format:  Either "jpeg" or "png"
     const dataURL = fabricRef.current.toDataURL({ format: 'png' })
 
     const link = document.createElement('a')
-    link.download = (fileNameRef.current as HTMLInputElement).value
+    link.download = fileNameInputEle.value
     link.href = dataURL
     link.target = '_blank'
     document.body.appendChild(link)
     link.click()
     if (link.parentNode) link.parentNode.removeChild(link)
+    fileNameInputEle.value = ''
   }
   return (
     <>

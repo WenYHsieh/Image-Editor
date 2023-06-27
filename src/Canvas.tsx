@@ -1,5 +1,6 @@
 import React, { ForwardedRef, MutableRefObject } from 'react'
 import { fabric } from 'fabric'
+import './css/canvas.scss'
 
 type DBTargets = 'rect' | 'text'
 type Props = {
@@ -192,6 +193,7 @@ const Canvas = React.forwardRef(
       const initFabric = () => {
         if (!fabricRef || ref === null) return
         fabricRef.current = new fabric.Canvas(ref?.current, {
+          backgroundColor: '#ffff',
           isDrawingMode,
         })
       }
