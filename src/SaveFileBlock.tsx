@@ -23,10 +23,10 @@ const SaveFileBlock = ({ fabricRef }: Props) => {
     fileNameInputEle.value = ''
   }
   return (
-    <>
+    <div className='saveFileBlock__wrapper'>
       輸出檔名 (PNG)：<input ref={fileNameRef}></input>
       <button onClick={saveAsName}>save</button>
-    </>
+    </div>
   )
 }
 

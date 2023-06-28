@@ -1,7 +1,7 @@
 .toolBar {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 250px;
   background-color: #262626;
   color: #cdcfeb;
   padding: 8px 16px;
@@ -28,6 +28,22 @@
       &:hover {
         background-color: #cdcfeb92;
         color: #262626;
+      }
+    }
+
+    input[type='range'] {
+      margin-left: 10px;
+    }
+
+    .saveFileBlock__wrapper {
+      display: flex;
+      flex-direction: column;
+
+      button {
+        width: 50px;
+        height: 25px;
+        margin-left: 0;
+        margin-top: 8px;
       }
     }
   }

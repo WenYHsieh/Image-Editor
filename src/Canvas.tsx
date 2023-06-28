@@ -62,8 +62,8 @@ const Canvas = React.forwardRef(
             id='canvas'
             ref={ref}
             width='600px'
-            height='800px'
-            style={{ border: '1px solid #d5d5d5' }}
+            height='600px'
+            style={{ border: '1px solid #e3e2e2' }}
           />
         </div>
       </>

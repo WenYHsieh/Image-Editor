@@ -10,11 +10,16 @@ import {
   faShapes,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons'
+import SaveFileBlock from './SaveFileBlock'
 
 type DBTargets = 'rect' | 'text'
 type Props = {
   fabricRef: MutableRefObject<fabric.Canvas | null>
 }
+
+//TODO
+// bugs
+// 1.  筆刷第一次用吃不到預設的顏色
 const ToolBar = ({ fabricRef }: Props) => {
   const [currentColor, setCurrentColor] = React.useState('#8989D1')
   const [currentWidth, setCurrentWidth] = React.useState(5)
@@ -46,7 +51,6 @@ const ToolBar = ({ fabricRef }: Props) => {
       width: 50,
       height: 50,
       fill: currentColor,
-      opacity: 0.7,
     })
 
     fabricInstance.add(rect)
@@ -96,9 +100,9 @@ const ToolBar = ({ fabricRef }: Props) => {
   const dbClickHandler = (options: any) => {
     if (options.target) return
     if (dbClickTarget === 'text')
-      addTextbox(options.e.clientX, options.e.clientY)
+      addTextbox(options.e.offsetX, options.e.offsetY)
     if (dbClickTarget === 'rect')
-      addRectangle(options.e.clientX, options.e.clientY)
+      addRectangle(options.e.offsetX, options.e.offsetY)
   }
 
   // 清除全部的物件
@@ -298,6 +302,9 @@ const ToolBar = ({ fabricRef }: Props) => {
           <option value='toForward'>向前一層</option>
           <option value='toBackward'>向後一層</option>
         </select>
+      </div>
+      <div className='toolGroup'>
+        <SaveFileBlock fabricRef={fabricRef} />
       </div>
     </div>
   )

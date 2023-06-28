@@ -1,14 +1,19 @@
 .imageStorage__wrapper {
   width: 350px;
-  height: 95vh;
+  height: 100vh;
   background-color: #8989d15a;
-  transition: 0.7s;
   position: relative;
   overflow-y: auto;
   margin-left: 16px;
+  transition: 0.7s;
+  position: relative;
 
-  &:hover {
-    opacity: 0.7;
+  &.close {
+    width: 30px;
+
+    .image__blocks {
+      display: none;
+    }
   }
 
   input[type='file'] {
@@ -23,15 +28,24 @@
     top: 0;
     display: flex;
     flex-direction: column;
+    padding: 8px 16px;
+    overflow: hidden;
     overflow-x: auto;
 
     .image__block {
-      width: 100px;
+      width: 90%;
       max-height: 180px;
-      margin-left: 20px;
+      margin-top: 20px;
+      display: flex;
+      transition: 0.7s;
+
+      &:hover {
+        opacity: 0.7;
+      }
 
       label {
-        height: 20%;
+        height: 50px;
+        width: 50%;
       }
 
       [draggable='true'] {
@@ -39,10 +53,27 @@
       }
 
       img {
-        width: 100%;
-        height: 80%;
+        width: 50%;
+
         object-fit: cover;
+        margin-right: 8px;
       }
+    }
+  }
+
+  .expandBtn {
+    background-color: transparent;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid gray;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    &:hover {
+      background-color: #cdcfeb92;
     }
   }
 }

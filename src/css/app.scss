@@ -7,8 +7,10 @@ body {
     justify-content: space-between;
 
     .canvas__wrapper {
+      width: 600px;
+      height: 600px;
       transform: translateY(10%);
-      // box-shadow: rgba(0, 0, 0, 0.12) 0px 0px 9px 2px inset;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 0px 9px 2px;
     }
   }
 }

@@ -8,6 +8,7 @@ type UploadedImage = {
 
 const ImageStorage = () => {
   const imageStorageRef = React.useRef(null)
+  const [isExpand, setIsExpand] = React.useState(true)
   const [uploadedImage, setUploadedImage] = React.useState<
     Array<UploadedImage>
   >([])
@@ -66,8 +67,8 @@ const ImageStorage = () => {
         {uploadedImage?.map(({ name, imgDataURL }) => {
           return (
             <div className='image__block'>
-              <label>{name}</label>
               <img id={name} src={imgDataURL} draggable='true'></img>
+              <label>{name}</label>
             </div>
           )
         })}
@@ -79,7 +80,7 @@ const ImageStorage = () => {
     <>
       <div
         ref={imageStorageRef}
-        className='imageStorage__wrapper'
+        className={`imageStorage__wrapper ${isExpand ? 'expand' : 'close'}`}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
@@ -91,6 +92,14 @@ const ImageStorage = () => {
           }
         ></input>
         {renderImageBlocks()}
+        <button
+          className='expandBtn'
+          onClick={() => {
+            setIsExpand(!isExpand)
+          }}
+        >
+          {isExpand ? '>' : '<'}
+        </button>
       </div>
     </>
   )

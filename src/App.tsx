@@ -1,7 +1,6 @@
 import React from 'react'
 import Canvas from './Canvas'
 import ImageStorage from './ImageStorage'
-import SaveFileBlock from './SaveFileBlock'
 import ToolBar from './ToolBar'
 import './css/app.scss'
 
@@ -15,7 +14,6 @@ const App = () => {
         <Canvas fabricRef={fabricRef} ref={canvasRef} />
         <ImageStorage />
       </div>
-      <SaveFileBlock fabricRef={fabricRef} />
     </>
   )
 }
