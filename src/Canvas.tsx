@@ -22,8 +22,8 @@ const Canvas = React.forwardRef(
       const newImage = new fabric.Image(img, {
         width: img.naturalWidth,
         height: img.naturalHeight,
-        left: e.clientX,
-        top: e.clientY,
+        left: e.nativeEvent.offsetX - img.naturalWidth / 4,
+        top: e.nativeEvent.offsetY - img.naturalHeight / 4,
         scaleX: 0.5,
         scaleY: 0.5,
       })
