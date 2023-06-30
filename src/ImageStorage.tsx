@@ -84,7 +84,8 @@ const ImageStorage = () => {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        {/* 拖曳或點選區塊以上傳 */}
+        <label> Image Storage</label>
+        <hr></hr>
         <input
           type='file'
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>

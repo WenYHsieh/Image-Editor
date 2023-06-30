@@ -1,18 +1,41 @@
 .imageStorage__wrapper {
   width: 350px;
   height: 100vh;
-  background-color: #8989d15a;
+  background-color: #f2f2f2;
   position: relative;
+  overflow: hidden;
   overflow-y: auto;
   margin-left: 16px;
   transition: 0.7s;
   position: relative;
+  opacity: 1;
+
+  label {
+    display: block;
+    width: 80%;
+    font-size: 18px;
+    margin: 0 auto;
+    text-align: center;
+    color: #8b8b8b;
+    padding: 8px 16px;
+  }
+
+  hr {
+    width: 80%;
+    border: none;
+    border-bottom: 1px solid #cdcfeb92;
+  }
 
   &.close {
-    width: 30px;
+    width: 46px;
 
     .image__blocks {
-      display: none;
+      opacity: 0;
+    }
+
+    label,
+    hr {
+      opacity: 0;
     }
   }
 
@@ -28,16 +51,19 @@
     top: 0;
     display: flex;
     flex-direction: column;
-    padding: 8px 16px;
+    align-items: center;
+    padding: 16px;
     overflow: hidden;
     overflow-x: auto;
+    margin-top: 20px;
+    opacity: 1;
+    transition: 0.7s;
 
     .image__block {
-      width: 90%;
-      max-height: 180px;
+      width: 85%;
+      height: 150px;
       margin-top: 20px;
       display: flex;
-      transition: 0.7s;
 
       &:hover {
         opacity: 0.7;
@@ -46,6 +72,8 @@
       label {
         height: 50px;
         width: 50%;
+        font-size: 12px;
+        color: #262626;
       }
 
       [draggable='true'] {
@@ -54,7 +82,7 @@
 
       img {
         width: 50%;
-
+        border: 3px solid #8989d15a;
         object-fit: cover;
         margin-right: 8px;
       }
@@ -62,18 +90,18 @@
   }
 
   .expandBtn {
-    background-color: transparent;
+    background-color: #dddddd;
     border: none;
     width: 30px;
     height: 30px;
     border-radius: 50%;
     border: 1px solid gray;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 8px;
+    left: 8px;
 
     &:hover {
-      background-color: #cdcfeb92;
+      opacity: 0.7;
     }
   }
 }

@@ -2,49 +2,124 @@
   display: flex;
   flex-direction: column;
   width: 250px;
-  background-color: #262626;
-  color: #cdcfeb;
+  background-color: #f2f2f2;
+  color: #8b8b8b;
   padding: 8px 16px;
   margin-right: 16px;
+  position: relative;
+  transition: 0.7s;
+  opacity: 1;
 
-  .toolGroup {
-    margin: 8px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  &.close {
+    width: 20px;
 
-    button {
-      background-color: transparent;
-      border: none;
-      width: 30px;
-      height: 30px;
-      color: #cdcfeb;
-      border-radius: 3px;
-
-      &:not(:first-child) {
-        margin-left: 8px;
-      }
-
-      &:hover {
-        background-color: #cdcfeb92;
-        color: #262626;
-      }
+    .toolGroup__container {
+      opacity: 0;
     }
 
-    input[type='range'] {
-      margin-left: 10px;
+    label,
+    hr {
+      opacity: 0;
     }
 
-    .saveFileBlock__wrapper {
+    .expandBtn {
+      left: 8px;
+    }
+  }
+
+  label {
+    width: 80%;
+    font-size: 18px;
+    margin: 0 auto;
+    text-align: center;
+    transition: 0.7s;
+  }
+
+  hr {
+    width: 80%;
+    border: none;
+    border-bottom: 1px solid #cdcfeb92;
+    transition: 0.7s;
+    overflow: hidden;
+  }
+
+  .toolGroup__container {
+    width: 250px;
+    transition: 0.7s;
+    overflow: hidden;
+
+    .toolGroup {
+      margin: 16px 8px;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      max-width: 85%;
+
+      label {
+        width: fit-content;
+        margin: 0;
+        margin-right: 16px;
+      }
 
       button {
-        width: 50px;
-        height: 25px;
-        margin-left: 0;
-        margin-top: 8px;
+        background-color: transparent;
+        border: none;
+        width: 30px;
+        height: 30px;
+        color: #8b8b8b;
+        border-radius: 3px;
+        font-family: inherit;
+
+        &:not(:first-child) {
+          margin-left: 16px;
+        }
+
+        &:hover {
+          background-color: #b1dfd971;
+          color: #3f96fe;
+        }
       }
+
+      input[type='range'] {
+        margin-left: 10px;
+      }
+
+      .saveFileBlock__wrapper {
+        display: flex;
+        flex-direction: column;
+
+        label {
+          margin: 0;
+          margin-bottom: 10px;
+          width: 100%;
+        }
+
+        button {
+          width: 50px;
+          height: 25px;
+          font-size: 16px;
+          margin-left: 0;
+          margin-top: 8px;
+        }
+      }
+    }
+  }
+
+  .expandBtn {
+    background-color: #dddddd;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid gray;
+    position: absolute;
+    top: 8px;
+    left: 242px;
+    transition: 0.7s;
+
+    &:hover {
+      opacity: 0.7;
     }
   }
 }

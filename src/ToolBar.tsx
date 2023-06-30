@@ -3,6 +3,10 @@ import { fabric } from 'fabric'
 import './css/toolBar.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
+  faAngleDown,
+  faAngleUp,
+  faAnglesDown,
+  faAnglesUp,
   faBroom,
   faFont,
   faHandPointer,
@@ -21,6 +25,7 @@ type Props = {
 // bugs
 // 1.  筆刷第一次用吃不到預設的顏色
 const ToolBar = ({ fabricRef }: Props) => {
+  const [isExpand, setIsExpand] = React.useState(true)
   const [currentColor, setCurrentColor] = React.useState('#8989D1')
   const [currentWidth, setCurrentWidth] = React.useState(5)
   const [currentOpacity, setCurrentOpacity] = React.useState(10)
@@ -131,15 +136,16 @@ const ToolBar = ({ fabricRef }: Props) => {
     }
   }
 
-  const handleLayoutControl = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLayoutControl = (
+    mode: 'toFront' | 'toBack' | 'toForward' | 'toBackward'
+  ) => {
     const fabricInstance = fabricRef.current
 
     if (fabricInstance) {
       const activeObject = fabricInstance?.getActiveObject()
       if (!activeObject) return
-      const layerControlValue = e.target.value
 
-      switch (layerControlValue) {
+      switch (mode) {
         case 'toFront':
           fabricInstance.bringToFront(activeObject)
           break
@@ -218,94 +224,126 @@ const ToolBar = ({ fabricRef }: Props) => {
   }, [currentOpacity])
 
   return (
-    <div className='toolBar'>
-      <div className='toolGroup'>
-        <button
-          onClick={() => {
-            handleToggleDrawingMode('draw')
-          }}
-        >
-          <FontAwesomeIcon icon={faPaintBrush} size='xl' />
-        </button>
-        <button
-          onClick={() => {
-            handleToggleDrawingMode('mouse')
-          }}
-        >
-          <FontAwesomeIcon icon={faHandPointer} size='xl' />
-        </button>
-      </div>
-      <div className='toolGroup'>
-        <input
-          type='color'
-          id='colorpicker'
-          value={currentColor}
-          onChange={handleColorPick}
-        ></input>{' '}
-      </div>
-      <div className='toolGroup'>
-        <button
-          onClick={() => {
-            setDBClickTarget('rect')
-            closeDrawingMode()
-          }}
-        >
-          <FontAwesomeIcon icon={faShapes} size='xl' />
-        </button>
-        <button
-          onClick={() => {
-            setDBClickTarget('text')
-            closeDrawingMode()
-          }}
-        >
-          <FontAwesomeIcon icon={faFont} size='xl' />
-        </button>
-      </div>
-      <div className='toolGroup'>
-        寬度
-        <input
-          type='range'
-          min='1'
-          max='100'
-          value={currentWidth}
-          onChange={handleWidthChange}
-        ></input>
-      </div>
-      <div className='toolGroup'>
-        透明度
-        <input
-          type='range'
-          min='1'
-          max='10'
-          value={currentOpacity}
-          onChange={handleOpacityChange}
-        ></input>
-      </div>
+    <div className={`toolBar ${isExpand ? 'expend' : 'close'}`}>
+      <label> Tool Bar</label>
+      <hr />
+      <div className='toolGroup__container'>
+        <div className='toolGroup'>
+          <button
+            onClick={() => {
+              handleToggleDrawingMode('draw')
+            }}
+          >
+            <FontAwesomeIcon icon={faPaintBrush} size='xl' />
+          </button>
+          <button
+            onClick={() => {
+              handleToggleDrawingMode('mouse')
+            }}
+          >
+            <FontAwesomeIcon icon={faHandPointer} size='xl' />
+          </button>
+        </div>
+        <div className='toolGroup'>
+          <button
+            onClick={() => {
+              setDBClickTarget('rect')
+              closeDrawingMode()
+            }}
+          >
+            <FontAwesomeIcon icon={faShapes} size='xl' />
+          </button>
+          <button
+            onClick={() => {
+              setDBClickTarget('text')
+              closeDrawingMode()
+            }}
+          >
+            <FontAwesomeIcon icon={faFont} size='xl' />
+          </button>
+        </div>
+        <div className='toolGroup'>
+          <label> Color</label>
+          <input
+            type='color'
+            id='colorpicker'
+            value={currentColor}
+            onChange={handleColorPick}
+          ></input>
+        </div>
+        <div className='toolGroup'>
+          <label> Width</label>
+          <input
+            type='range'
+            min='1'
+            max='100'
+            value={currentWidth}
+            onChange={handleWidthChange}
+          ></input>
+        </div>
+        <div className='toolGroup'>
+          <label> Opacity</label>
+          <input
+            type='range'
+            min='1'
+            max='10'
+            value={currentOpacity}
+            onChange={handleOpacityChange}
+          ></input>
+        </div>
+        <div className='toolGroup'>
+          <label> Layer</label>
+          <button
+            onClick={() => {
+              handleLayoutControl('toForward')
+            }}
+          >
+            <FontAwesomeIcon icon={faAngleUp} size='xl' />
+          </button>
+          <button
+            onClick={() => {
+              handleLayoutControl('toFront')
+            }}
+          >
+            <FontAwesomeIcon icon={faAnglesUp} size='xl' />
+          </button>
+          <button
+            onClick={() => {
+              handleLayoutControl('toBackward')
+            }}
+          >
+            <FontAwesomeIcon icon={faAngleDown} size='xl' />
+          </button>
+          <button
+            onClick={() => {
+              handleLayoutControl('toBack')
+            }}
+          >
+            <FontAwesomeIcon icon={faAnglesDown} size='xl' />
+          </button>
+        </div>
+        <div className='toolGroup'>
+          <button onClick={clearCanvas}>
+            <FontAwesomeIcon icon={faBroom} size='xl' />
+          </button>
+          <button onClick={removeObject}>
+            <FontAwesomeIcon icon={faTrashCan} size='xl' />
+          </button>
+        </div>
 
-      <div className='toolGroup'>
-        <button onClick={clearCanvas}>
-          <FontAwesomeIcon icon={faBroom} size='xl' />
-        </button>
-        <button onClick={removeObject}>
-          <FontAwesomeIcon icon={faTrashCan} size='xl' />
-        </button>
+        <hr />
+        <div className='toolGroup'>
+          <SaveFileBlock fabricRef={fabricRef} />
+        </div>
       </div>
-      <div className='toolGroup'>
-        <select
-          id='layerControl'
-          onChange={handleLayoutControl}
-          defaultValue='default'
-        >
-          <option value='default'>設定圖層</option>
-          <option value='toFront'>到最前面</option>
-          <option value='toBack'>到最後面</option>
-          <option value='toForward'>向前一層</option>
-          <option value='toBackward'>向後一層</option>
-        </select>
-      </div>
-      <div className='toolGroup'>
-        <SaveFileBlock fabricRef={fabricRef} />
-      </div>
+      <button
+        className='expandBtn'
+        onClick={() => {
+          setIsExpand(!isExpand)
+        }}
+      >
+        {isExpand ? '<' : '>'}
+      </button>
     </div>
   )
 }

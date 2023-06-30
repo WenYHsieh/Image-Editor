@@ -14,6 +14,7 @@ const SaveFileBlock = ({ fabricRef }: Props) => {
     const dataURL = fabricRef.current.toDataURL({ format: 'png' })
 
     const link = document.createElement('a')
+    if (!fileNameInputEle.value) return
     link.download = fileNameInputEle.value
     link.href = dataURL
     link.target = '_blank'
@@ -24,7 +25,8 @@ const SaveFileBlock = ({ fabricRef }: Props) => {
   }
   return (
     <div className='saveFileBlock__wrapper'>
-      輸出檔名 (PNG)：<input ref={fileNameRef}></input>
+      <label> Export File (PNG)：</label>
+      <input ref={fileNameRef}></input>
       <button onClick={saveAsName}>save</button>
     </div>
   )
