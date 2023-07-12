@@ -22,10 +22,12 @@ const Canvas = React.forwardRef(
       const newImage = new fabric.Image(img, {
         width: img.naturalWidth,
         height: img.naturalHeight,
-        left: e.nativeEvent.offsetX - img.naturalWidth / 4,
-        top: e.nativeEvent.offsetY - img.naturalHeight / 4,
-        scaleX: 0.5,
-        scaleY: 0.5,
+        left: e.nativeEvent.offsetX - img.naturalWidth / 2,
+        top: e.nativeEvent.offsetY - img.naturalHeight / 2,
+        // scaleX: 0.5,
+        // scaleY: 0.5,
+        // cropX: 100,
+        // cropY: 100,
       })
 
       fabricRef.current.add(newImage)

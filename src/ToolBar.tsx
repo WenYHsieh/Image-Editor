@@ -8,6 +8,8 @@ import {
   faAnglesDown,
   faAnglesUp,
   faBroom,
+  faCheck,
+  faCrop,
   faFont,
   faHandPointer,
   faPaintBrush,
@@ -20,16 +22,27 @@ type DBTargets = 'rect' | 'text'
 type Props = {
   fabricRef: MutableRefObject<fabric.Canvas | null>
 }
+type OnCropObjects = {
+  img: fabric.Image | null
+  mask: fabric.Rect | null
+}
 
-//TODO
-// bugs
-// 1.  筆刷第一次用吃不到預設的顏色
 const ToolBar = ({ fabricRef }: Props) => {
   const [isExpand, setIsExpand] = React.useState(true)
-  const [currentColor, setCurrentColor] = React.useState('#8989D1')
-  const [currentWidth, setCurrentWidth] = React.useState(5)
+  const [currentColor, setCurrentColor] = React.useState('black')
+  const [currentWidth, setCurrentWidth] = React.useState(1)
   const [currentOpacity, setCurrentOpacity] = React.useState(10)
   const [dbClickTarget, setDBClickTarget] = React.useState<DBTargets>()
+  const [onCropObjects, setOnCropObjects] = React.useState<OnCropObjects>({
+    img: null,
+    mask: null,
+  })
+  const [clip, setClip] = React.useState({
+    top: 0,
+    left: 0,
+    width: 0,
+    height: 0,
+  })
 
   // 一般模式跟畫圖模式間切換
   const handleToggleDrawingMode = (mode: 'draw' | 'mouse') => {
@@ -136,6 +149,7 @@ const ToolBar = ({ fabricRef }: Props) => {
     }
   }
 
+  // 圖層工具
   const handleLayoutControl = (
     mode: 'toFront' | 'toBack' | 'toForward' | 'toBackward'
   ) => {
@@ -171,6 +185,118 @@ const ToolBar = ({ fabricRef }: Props) => {
     setCurrentOpacity(opacity * 10)
   }
 
+  // 把裁切遮罩放到選中的圖片上
+  const handleClip = () => {
+    const fabricInstance = fabricRef.current
+    if (!fabricInstance) return
+    const activeObject = fabricInstance.getActiveObject()
+    if (!activeObject || activeObject.type !== 'image') return
+
+    setOnCropObjects((onCropObjects: OnCropObjects) => {
+      return { ...onCropObjects, img: activeObject as fabric.Image }
+    })
+    const { left, top } = activeObject as fabric.Image & {
+      left: number
+      top: number
+    }
+    const width = activeObject.getScaledWidth()
+    const height = activeObject.getScaledHeight()
+    activeObject.selectable = false
+    const clipMask = new fabric.Rect({
+      top,
+      left,
+      width: width,
+      height: height,
+      fill: 'rgb(178, 178, 178, 0.3)',
+      transparentCorners: false,
+      cornerColor: 'rgb(178, 178, 178, 0.8)',
+      strokeWidth: 1,
+      cornerStrokeColor: 'black',
+      borderColor: 'black',
+      borderDashArray: [5, 5],
+      cornerStyle: 'circle',
+    })
+    clipMask.setControlVisible('mtr', false)
+    fabricInstance.add(clipMask)
+    setOnCropObjects((onCropObjects: OnCropObjects) => {
+      return { ...onCropObjects, mask: clipMask }
+    })
+    fabricInstance.bringToFront(clipMask)
+
+    const clipMaskId = fabricInstance.getObjects().indexOf(clipMask)
+    fabricInstance.setActiveObject(fabricInstance.item(clipMaskId) as any)
+    clipMask.on('moving', () => {
+      handleKeepClipInsideImg({ clipMask, top, left, height, width })
+    })
+    clipMask.on('scaling', () => {
+      handleKeepClipInsideImg({ clipMask, top, left, height, width })
+    })
+  }
+
+  const handleKeepClipInsideImg = ({
+    clipMask,
+    top,
+    left,
+    height,
+    width,
+  }: {
+    clipMask: fabric.Rect
+    top: number
+    left: number
+    height: number
+    width: number
+  }) => {
+    const { top: maskTop, left: maskLeft } = clipMask as {
+      top: number
+      left: number
+    }
+    const maskHeight = clipMask.getScaledHeight() as number
+    const maskWidth = clipMask.getScaledWidth()
+
+    // 裁切遮罩不可以超過圖片
+    if (maskTop < top) {
+      clipMask.top = top
+    }
+    if (maskLeft < left) {
+      clipMask.left = left
+    }
+    if (maskTop > top + height - maskHeight) {
+      clipMask.top = top + height - maskHeight
+    }
+
+    if (maskLeft > left + (width - maskWidth)) {
+      clipMask.left = left + width - maskWidth
+    }
+
+    setClip({
+      top: maskTop,
+      left: maskLeft,
+      width: maskWidth,
+      height: maskHeight,
+    })
+  }
+
+  // 裁切照片，把圖片變成遮罩的大小
+  const handleCrop = () => {
+    const fabricInstance = fabricRef.current
+    if (!fabricInstance || !onCropObjects.img || !onCropObjects.mask) return
+
+    const { top, left, width, height } = clip
+    const onCropImg = onCropObjects.img as fabric.Image
+    onCropImg.selectable = true
+    fabricInstance.remove(onCropObjects.mask)
+    onCropImg.set({
+      cropX: left - (onCropImg.left as number),
+      cropY: top - (onCropImg.top as number),
+      width,
+      height,
+    })
+
+    setOnCropObjects({ img: null, mask: null })
+
+    fabricInstance.renderAll()
+  }
+
   React.useEffect(() => {
     const initBrush = () => {
       if (!fabricRef.current) return
@@ -179,6 +305,7 @@ const ToolBar = ({ fabricRef }: Props) => {
       // 設置筆刷的顏色和粗細
       brush.color = currentColor
       brush.width = currentWidth
+
       fabricRef.current.freeDrawingBrush = brush
     }
 
@@ -191,6 +318,7 @@ const ToolBar = ({ fabricRef }: Props) => {
 
     // 在雙擊位置新增文字方塊
     fabricInstance.on('mouse:dblclick', dbClickHandler)
+
     //TODO 取消選擇的物件帶到最上層的動作
 
     return () => {
@@ -322,6 +450,16 @@ const ToolBar = ({ fabricRef }: Props) => {
             <FontAwesomeIcon icon={faAnglesDown} size='xl' />
           </button>
         </div>
+        <div className='toolGroup'>
+          <label> Crop </label>
+          <button onClick={handleClip}>
+            <FontAwesomeIcon icon={faCrop} size='xl' />
+          </button>
+          <button onClick={handleCrop}>
+            <FontAwesomeIcon icon={faCheck} size='xl' />
+          </button>
+        </div>
+
         <div className='toolGroup'>
           <button onClick={clearCanvas}>
             <FontAwesomeIcon icon={faBroom} size='xl' />
