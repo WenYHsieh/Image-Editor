@@ -26,7 +26,7 @@ const Canvas = React.forwardRef(
         top: e.nativeEvent.offsetY - img.naturalHeight / 2,
         // scaleX: 0.5,
         // scaleY: 0.5,
-        // cropX: 100,
+        // cropX: 50,
         // cropY: 100,
       })
 

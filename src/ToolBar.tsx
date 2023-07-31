@@ -8,24 +8,23 @@ import {
   faAnglesDown,
   faAnglesUp,
   faBroom,
-  faCheck,
-  faCrop,
+  // faCheck,
+  // faCrop,
   faFont,
   faHandPointer,
   faPaintBrush,
-  faShapes,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons'
 import SaveFileBlock from './SaveFileBlock'
 
-type DBTargets = 'rect' | 'text'
+type DBTargets = 'rect' | 'text' | 'emptyRect' | 'tri' | 'line'
 type Props = {
   fabricRef: MutableRefObject<fabric.Canvas | null>
 }
-type OnCropObjects = {
-  img: fabric.Image | null
-  mask: fabric.Rect | null
-}
+// type OnCropObjects = {
+//   img: fabric.Image | null
+//   mask: fabric.Rect | null
+// }
 
 const ToolBar = ({ fabricRef }: Props) => {
   const [isExpand, setIsExpand] = React.useState(true)
@@ -33,17 +32,18 @@ const ToolBar = ({ fabricRef }: Props) => {
   const [currentWidth, setCurrentWidth] = React.useState(1)
   const [currentOpacity, setCurrentOpacity] = React.useState(10)
   const [dbClickTarget, setDBClickTarget] = React.useState<DBTargets>()
-  const [onCropObjects, setOnCropObjects] = React.useState<OnCropObjects>({
-    img: null,
-    mask: null,
-  })
-  const [clip, setClip] = React.useState({
-    top: 0,
-    left: 0,
-    width: 0,
-    height: 0,
-  })
+  // const [onCropObjects, setOnCropObjects] = React.useState<OnCropObjects>({
+  //   img: null,
+  //   mask: null,
+  // })
+  // const [clip, setClip] = React.useState({
+  //   top: 0,
+  //   left: 0,
+  //   width: 0,
+  //   height: 0,
+  // })
 
+  //TODO icon 用 map 產
   // 一般模式跟畫圖模式間切換
   const handleToggleDrawingMode = (mode: 'draw' | 'mouse') => {
     const fabricInstance = fabricRef.current
@@ -60,20 +60,63 @@ const ToolBar = ({ fabricRef }: Props) => {
     }
   }
   // 新增方形
-  const addRectangle = (left: number, top: number) => {
+  const addRectangle = (
+    left: number,
+    top: number,
+    type: 'rect' | 'tri' | 'line' | 'emptyRect'
+  ) => {
     const fabricInstance = fabricRef.current as fabric.Canvas
 
-    const rect = new fabric.Rect({
-      top: top - 25,
-      left: left - 25,
-      width: 50,
-      height: 50,
-      fill: currentColor,
-    })
+    let newObject
 
-    fabricInstance.add(rect)
+    switch (type) {
+      case 'rect':
+        newObject = new fabric.Rect({
+          top: top - 25,
+          left: left - 25,
+          width: 50,
+          height: 50,
+          fill: currentColor,
+        })
+        break
+      case 'emptyRect':
+        newObject = new fabric.Rect({
+          top: top - 25,
+          left: left - 25,
+          width: 50,
+          height: 50,
+          fill: 'transparent',
+          stroke: currentColor,
+          strokeWidth: currentWidth,
+        })
+        break
+      case 'tri':
+        newObject = new fabric.Triangle({
+          top: top - 25,
+          left: left - 25,
+          width: 50,
+          height: 50,
+          fill: currentColor,
+        })
+        break
+      case 'line':
+        newObject = new fabric.Line([2, 1, 50, 1], {
+          top,
+          left,
+          fill: 'black',
+          stroke: 'black',
+          strokeWidth: 2,
+        })
+        break
+
+      default:
+        break
+    }
+
+    if (!newObject) return
+    fabricInstance.add(newObject)
     // 綁定在選得時取得一些關於這 object 的資訊，之後要用來對應渲染到工具列上
-    rect.on('selected', handleObjectSelection)
+    newObject.on('selected', handleObjectSelection)
   }
 
   // 新增文字方塊
@@ -84,7 +127,6 @@ const ToolBar = ({ fabricRef }: Props) => {
       top: top - 25,
       left: left - 25,
       fill: currentColor,
-
       // textBackgroundColor: 'red',
       // backgroundColor: 'green',
     })
@@ -117,10 +159,26 @@ const ToolBar = ({ fabricRef }: Props) => {
   // 雙擊事件處理
   const dbClickHandler = (options: any) => {
     if (options.target) return
-    if (dbClickTarget === 'text')
-      addTextbox(options.e.offsetX, options.e.offsetY)
-    if (dbClickTarget === 'rect')
-      addRectangle(options.e.offsetX, options.e.offsetY)
+
+    switch (dbClickTarget) {
+      case 'text':
+        addTextbox(options.e.offsetX, options.e.offsetY)
+        break
+      case 'rect':
+        addRectangle(options.e.offsetX, options.e.offsetY, 'rect')
+        break
+      case 'emptyRect':
+        addRectangle(options.e.offsetX, options.e.offsetY, 'emptyRect')
+        break
+      case 'tri':
+        addRectangle(options.e.offsetX, options.e.offsetY, 'tri')
+        break
+      case 'line':
+        addRectangle(options.e.offsetX, options.e.offsetY, 'line')
+        break
+      default:
+        break
+    }
   }
 
   // 清除全部的物件
@@ -187,116 +245,126 @@ const ToolBar = ({ fabricRef }: Props) => {
     setCurrentOpacity(opacity * 10)
   }
 
-  // 把裁切遮罩放到選中的圖片上
-  const handleClip = () => {
-    const fabricInstance = fabricRef.current
-    if (!fabricInstance) return
-    const activeObject = fabricInstance.getActiveObject()
-    if (!activeObject || activeObject.type !== 'image') return
+  // // 把裁切遮罩放到選中的圖片上
+  // const handleClip = () => {
+  //   const fabricInstance = fabricRef.current
+  //   if (!fabricInstance) return
+  //   const activeObject = fabricInstance.getActiveObject()
+  //   if (!activeObject || activeObject.type !== 'image') return
 
-    setOnCropObjects((onCropObjects: OnCropObjects) => {
-      return { ...onCropObjects, img: activeObject as fabric.Image }
-    })
-    const { left, top } = activeObject as fabric.Image & {
-      left: number
-      top: number
-    }
-    const width = activeObject.getScaledWidth()
-    const height = activeObject.getScaledHeight()
-    activeObject.selectable = false
-    const clipMask = new fabric.Rect({
-      top,
-      left,
-      width: width,
-      height: height,
-      fill: 'rgb(178, 178, 178, 0.3)',
-      transparentCorners: false,
-      cornerColor: 'rgb(178, 178, 178, 0.8)',
-      strokeWidth: 1,
-      cornerStrokeColor: 'black',
-      borderColor: 'black',
-      borderDashArray: [5, 5],
-      cornerStyle: 'circle',
-    })
-    clipMask.setControlVisible('mtr', false)
-    fabricInstance.add(clipMask)
-    setOnCropObjects((onCropObjects: OnCropObjects) => {
-      return { ...onCropObjects, mask: clipMask }
-    })
-    fabricInstance.bringToFront(clipMask)
+  //   setOnCropObjects((onCropObjects: OnCropObjects) => {
+  //     return { ...onCropObjects, img: activeObject as fabric.Image }
+  //   })
+  //   const { left, top } = activeObject as fabric.Image & {
+  //     left: number
+  //     top: number
+  //   }
+  //   const width = activeObject.getScaledWidth()
+  //   const height = activeObject.getScaledHeight()
 
-    const clipMaskId = fabricInstance.getObjects().indexOf(clipMask)
-    fabricInstance.setActiveObject(fabricInstance.item(clipMaskId) as any)
-    clipMask.on('moving', () => {
-      handleKeepClipInsideImg({ clipMask, top, left, height, width })
-    })
-    clipMask.on('scaling', () => {
-      handleKeepClipInsideImg({ clipMask, top, left, height, width })
-    })
-  }
+  //   activeObject.selectable = false
 
-  const handleKeepClipInsideImg = ({
-    clipMask,
-    top,
-    left,
-    height,
-    width,
-  }: {
-    clipMask: fabric.Rect
-    top: number
-    left: number
-    height: number
-    width: number
-  }) => {
-    const { top: maskTop, left: maskLeft } = clipMask as {
-      top: number
-      left: number
-    }
-    const maskHeight = clipMask.getScaledHeight() as number
-    const maskWidth = clipMask.getScaledWidth()
+  //   const clipMask = new fabric.Rect({
+  //     top,
+  //     left,
+  //     width: width,
+  //     height: height,
+  //     fill: 'rgb(178, 178, 178, 0.3)',
+  //     transparentCorners: false,
+  //     cornerColor: 'rgb(178, 178, 178, 0.8)',
+  //     strokeWidth: 1,
+  //     cornerStrokeColor: 'black',
+  //     borderColor: 'black',
+  //     borderDashArray: [5, 5],
+  //     cornerStyle: 'circle',
+  //   })
 
-    // 裁切遮罩不可以超過圖片
-    if (maskTop < top) {
-      clipMask.top = top
-    }
-    if (maskLeft < left) {
-      clipMask.left = left
-    }
-    if (maskTop > top + height - maskHeight) {
-      clipMask.top = top + height - maskHeight
-    }
-    if (maskLeft > left + (width - maskWidth)) {
-      clipMask.left = left + width - maskWidth
-    }
+  //   clipMask.setControlVisible('mtr', false)
+  //   fabricInstance.add(clipMask)
 
-    setClip({
-      top: maskTop,
-      left: maskLeft,
-      width: maskWidth,
-      height: maskHeight,
-    })
-  }
+  //   setOnCropObjects((onCropObjects: OnCropObjects) => {
+  //     return { ...onCropObjects, mask: clipMask }
+  //   })
+  //   fabricInstance.bringToFront(clipMask)
 
-  // 裁切照片，把圖片變成遮罩的大小
-  const handleCrop = () => {
-    const fabricInstance = fabricRef.current
-    if (!fabricInstance || !onCropObjects.img || !onCropObjects.mask) return
+  //   const clipMaskId = fabricInstance.getObjects().indexOf(clipMask)
 
-    const { top, left, width, height } = clip
-    const onCropImg = onCropObjects.img as fabric.Image
-    onCropImg.selectable = true
-    fabricInstance.remove(onCropObjects.mask)
-    onCropImg.set({
-      cropX: left - (onCropImg.left as number),
-      cropY: top - (onCropImg.top as number),
-      width,
-      height,
-    })
+  //   fabricInstance.setActiveObject(fabricInstance.item(clipMaskId) as any)
+  //   clipMask.on('moving', () => {
+  //     handleKeepClipInsideImg({ clipMask, top, left, height, width })
+  //   })
+  //   clipMask.on('scaling', () => {
+  //     handleKeepClipInsideImg({ clipMask, top, left, height, width })
+  //   })
+  // }
 
-    setOnCropObjects({ img: null, mask: null })
+  // const handleKeepClipInsideImg = ({
+  //   clipMask,
+  //   top,
+  //   left,
+  //   height,
+  //   width,
+  // }: {
+  //   clipMask: fabric.Rect
+  //   top: number
+  //   left: number
+  //   height: number
+  //   width: number
+  // }) => {
+  //   const { top: maskTop, left: maskLeft } = clipMask as {
+  //     top: number
+  //     left: number
+  //   }
+  //   const maskHeight = clipMask.getScaledHeight() as number
+  //   const maskWidth = clipMask.getScaledWidth()
 
-    fabricInstance.renderAll()
-  }
+  //   // 裁切遮罩不可以超過圖片
+  //   if (maskTop < top) {
+  //     clipMask.top = top
+  //   }
+  //   if (maskLeft < left) {
+  //     clipMask.left = left
+  //   }
+  //   if (maskTop > top + height - maskHeight) {
+  //     clipMask.top = top + height - maskHeight
+  //   }
+  //   if (maskLeft > left + (width - maskWidth)) {
+  //     clipMask.left = left + width - maskWidth
+  //   }
+
+  //   setClip({
+  //     top: maskTop,
+  //     left: maskLeft,
+  //     width: maskWidth,
+  //     height: maskHeight,
+  //   })
+  // }
+
+  // // 裁切照片，把圖片變成遮罩的大小
+  // const handleCrop = () => {
+  //   const fabricInstance = fabricRef.current
+  //   if (!fabricInstance || !onCropObjects.img || !onCropObjects.mask) return
+
+  //   const { top, left, width, height } = clip
+  //   const onCropImg = onCropObjects.img as fabric.Image
+
+  //   onCropImg.set({
+  //     width,
+  //     height,
+  //   })
+
+  //   onCropImg.set({
+  //     cropX: onCropImg.getScaledWidth() - width,
+  //     left,
+  //     cropY: onCropImg.getScaledHeight() - height,
+  //     top,
+  //   })
+
+  //   setOnCropObjects({ img: null, mask: null })
+  //   // fabricInstance.remove(onCropObjects.mask)
+  //   onCropImg.selectable = true
+  //   fabricInstance.renderAll()
+  // }
 
   React.useEffect(() => {
     const initBrush = () => {
@@ -320,16 +388,12 @@ const ToolBar = ({ fabricRef }: Props) => {
     // 在雙擊位置新增文字方塊
     fabricInstance.on('mouse:dblclick', dbClickHandler)
 
-    //TODO 取消選擇的物件帶到最上層的動作
-
     return () => {
       fabricInstance.off('mouse:dblclick', dbClickHandler)
     }
   }, [currentColor, dbClickTarget])
 
   React.useEffect(() => {
-    // 賦值的左手邊不能有問號（optional)
-
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
       const brush = fabricInstance.freeDrawingBrush
@@ -380,8 +444,33 @@ const ToolBar = ({ fabricRef }: Props) => {
               closeDrawingMode()
             }}
           >
-            <FontAwesomeIcon icon={faShapes} size='xl' />
+            <div className='rectIcon fill'></div>
           </button>
+          <button
+            onClick={() => {
+              setDBClickTarget('emptyRect')
+              closeDrawingMode()
+            }}
+          >
+            <div className='rectIcon'></div>
+          </button>
+          <button
+            onClick={() => {
+              setDBClickTarget('tri')
+              closeDrawingMode()
+            }}
+          >
+            <div className='triangle'></div>
+          </button>
+          <button
+            onClick={() => {
+              setDBClickTarget('line')
+              closeDrawingMode()
+            }}
+          >
+            <div className='line'></div>
+          </button>
+
           <button
             onClick={() => {
               setDBClickTarget('text')
@@ -451,7 +540,7 @@ const ToolBar = ({ fabricRef }: Props) => {
             <FontAwesomeIcon icon={faAnglesDown} size='xl' />
           </button>
         </div>
-        <div className='toolGroup'>
+        {/* <div className='toolGroup'>
           <label> Crop </label>
           <button onClick={handleClip}>
             <FontAwesomeIcon icon={faCrop} size='xl' />
@@ -459,7 +548,7 @@ const ToolBar = ({ fabricRef }: Props) => {
           <button onClick={handleCrop}>
             <FontAwesomeIcon icon={faCheck} size='xl' />
           </button>
-        </div>
+        </div> */}
 
         <div className='toolGroup'>
           <button onClick={clearCanvas}>

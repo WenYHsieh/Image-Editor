@@ -69,10 +69,35 @@
         height: 30px;
         color: #8b8b8b;
         border-radius: 3px;
+        box-sizing: border-box;
         font-family: inherit;
 
         &:not(:first-child) {
           margin-left: 16px;
+        }
+
+        .rectIcon {
+          width: 16px;
+          height: 16px;
+          border: 2px solid #8b8b8b;
+          border-radius: 4px;
+
+          &.fill {
+            background-color: #8b8b8b;
+          }
+        }
+
+        .line {
+          width: 16px;
+          border: 2px solid #8b8b8b;
+        }
+
+        .triangle {
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 0 10px 16px 10px;
+          border-color: transparent transparent #8b8b8b transparent;
         }
 
         &:hover {
