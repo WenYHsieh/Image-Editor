@@ -66,7 +66,7 @@ const ImageStorage = () => {
       <div className='image__blocks' onDragStart={handleDragStart}>
         {uploadedImage?.map(({ name, imgDataURL }) => {
           return (
-            <div className='image__block'>
+            <div className='image__block' key={name}>
               <img id={name} src={imgDataURL} draggable='true'></img>
               <label>{name}</label>
             </div>

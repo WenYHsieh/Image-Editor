@@ -172,6 +172,8 @@ const ToolBar = ({ fabricRef }: Props) => {
         case 'toBackward':
           fabricInstance.sendBackwards(activeObject)
       }
+      fabricInstance.discardActiveObject()
+      fabricInstance.renderAll()
     }
   }
 
@@ -263,7 +265,6 @@ const ToolBar = ({ fabricRef }: Props) => {
     if (maskTop > top + height - maskHeight) {
       clipMask.top = top + height - maskHeight
     }
-
     if (maskLeft > left + (width - maskWidth)) {
       clipMask.left = left + width - maskWidth
     }
