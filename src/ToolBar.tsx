@@ -20,6 +20,7 @@ import SaveFileBlock from './SaveFileBlock'
 
 type DBTargets = 'rect' | 'text' | 'emptyRect' | 'tri' | 'line'
 type LayerControls = 'toFront' | 'toBack' | 'toForward' | 'toBackward'
+type Mode = 'draw' | 'mouse'
 type Props = {
   fabricRef: MutableRefObject<fabric.Canvas | null>
 }
@@ -33,6 +34,7 @@ const ToolBar = ({ fabricRef }: Props) => {
   const [currentColor, setCurrentColor] = React.useState('black')
   const [currentWidth, setCurrentWidth] = React.useState(1)
   const [currentOpacity, setCurrentOpacity] = React.useState(10)
+  const [mode, setMode] = React.useState<Mode>('mouse')
   const [dbClickTarget, setDBClickTarget] = React.useState<DBTargets>()
   // const [onCropObjects, setOnCropObjects] = React.useState<OnCropObjects>({
   //   img: null,
@@ -47,10 +49,11 @@ const ToolBar = ({ fabricRef }: Props) => {
 
   //TODO icon 用 map 產
   // 一般模式跟畫圖模式間切換
-  const handleToggleDrawingMode = (mode: 'draw' | 'mouse') => {
+  const handleToggleDrawingMode = (mode: Mode) => {
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
       fabricInstance.isDrawingMode = mode === 'draw'
+      setMode(mode)
     }
   }
 
@@ -59,6 +62,7 @@ const ToolBar = ({ fabricRef }: Props) => {
     const fabricInstance = fabricRef.current
     if (fabricInstance) {
       fabricInstance.isDrawingMode = false
+      setMode('mouse')
     }
   }
   // 新增方形
@@ -261,12 +265,14 @@ const ToolBar = ({ fabricRef }: Props) => {
         <div className='toolGroup'>
           {shapeTextConfig?.map(({ label, className }) => {
             const isText = label === 'text'
+            const isActive = dbClickTarget === label
             return (
               <button
                 onClick={() => {
                   setDBClickTarget(label)
                   closeDrawingMode()
                 }}
+                className={isActive ? 'active' : ''}
               >
                 {isText ? (
                   <FontAwesomeIcon icon={faFont} size='xl' />
@@ -493,6 +499,7 @@ const ToolBar = ({ fabricRef }: Props) => {
             onClick={() => {
               handleToggleDrawingMode('draw')
             }}
+            className={mode === 'draw' ? 'active' : ''}
           >
             <FontAwesomeIcon icon={faPaintBrush} size='xl' />
           </button>
@@ -500,6 +507,7 @@ const ToolBar = ({ fabricRef }: Props) => {
             onClick={() => {
               handleToggleDrawingMode('mouse')
             }}
+            className={mode === 'mouse' ? 'active' : ''}
           >
             <FontAwesomeIcon icon={faHandPointer} size='xl' />
           </button>

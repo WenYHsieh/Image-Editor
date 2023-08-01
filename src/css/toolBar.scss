@@ -111,7 +111,8 @@
           border-color: transparent transparent #8b8b8b transparent;
         }
 
-        &:hover {
+        &:hover,
+        &.active {
           background-color: #b1dfd971;
           color: #3f96fe;
         }
