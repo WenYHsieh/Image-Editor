@@ -24,10 +24,6 @@ const Canvas = React.forwardRef(
         height: img.naturalHeight,
         left: e.nativeEvent.offsetX - img.naturalWidth / 2,
         top: e.nativeEvent.offsetY - img.naturalHeight / 2,
-        // scaleX: 0.5,
-        // scaleY: 0.5,
-        // cropX: 50,
-        // cropY: 100,
       })
 
       fabricRef.current.add(newImage)
@@ -63,7 +59,7 @@ const Canvas = React.forwardRef(
           <canvas
             id='canvas'
             ref={ref}
-            width='600px'
+            width='500px'
             height={window.innerHeight - 50}
             style={{ border: '1px solid #e3e2e2' }}
           />

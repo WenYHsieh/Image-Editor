@@ -25,8 +25,8 @@ const SaveFileBlock = ({ fabricRef }: Props) => {
   }
   return (
     <div className='saveFileBlock__wrapper'>
-      <label> Export File (PNG)：</label>
-      <div>
+      <label className='title'> Export File (PNG)：</label>
+      <div className='container'>
         <input ref={fileNameRef}></input>
         <button onClick={saveAsName}>save</button>
       </div>

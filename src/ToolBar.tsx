@@ -3,6 +3,7 @@ import { fabric } from 'fabric'
 import './css/toolBar.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
+  IconDefinition,
   faAngleDown,
   faAngleUp,
   faAnglesDown,
@@ -18,6 +19,7 @@ import {
 import SaveFileBlock from './SaveFileBlock'
 
 type DBTargets = 'rect' | 'text' | 'emptyRect' | 'tri' | 'line'
+type LayerControls = 'toFront' | 'toBack' | 'toForward' | 'toBackward'
 type Props = {
   fabricRef: MutableRefObject<fabric.Canvas | null>
 }
@@ -127,8 +129,6 @@ const ToolBar = ({ fabricRef }: Props) => {
       top: top - 25,
       left: left - 25,
       fill: currentColor,
-      // textBackgroundColor: 'red',
-      // backgroundColor: 'green',
     })
     fabricInstance.add(text)
   }
@@ -243,6 +243,72 @@ const ToolBar = ({ fabricRef }: Props) => {
 
     setCurrentColor(color)
     setCurrentOpacity(opacity * 10)
+  }
+
+  const renderShapeText = () => {
+    const shapeTextConfig: Array<{ label: DBTargets; className: string }> = [
+      { label: 'rect', className: 'rectIcon fill' },
+      { label: 'emptyRect', className: 'rectIcon' },
+      { label: 'line', className: 'line' },
+      { label: 'tri', className: 'triangle' },
+      { label: 'text', className: '' },
+    ]
+    return (
+      <>
+        <label className='title'> Shapes and Text </label>
+        <label className='subTitle'> (Double click to add)</label>
+
+        <div className='toolGroup'>
+          {shapeTextConfig?.map(({ label, className }) => {
+            const isText = label === 'text'
+            return (
+              <button
+                onClick={() => {
+                  setDBClickTarget(label)
+                  closeDrawingMode()
+                }}
+              >
+                {isText ? (
+                  <FontAwesomeIcon icon={faFont} size='xl' />
+                ) : (
+                  <div className={className}></div>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </>
+    )
+  }
+
+  const renderLayerControl = () => {
+    const layerControlConfig: Array<{
+      label: LayerControls
+      icon: IconDefinition
+    }> = [
+      { label: 'toForward', icon: faAngleUp },
+      { label: 'toFront', icon: faAnglesUp },
+      { label: 'toBackward', icon: faAngleDown },
+      { label: 'toBack', icon: faAnglesDown },
+    ]
+
+    return (
+      <div className='toolGroup'>
+        <label className='subTitle'> Layer</label>
+
+        {layerControlConfig?.map(({ label, icon }) => {
+          return (
+            <button
+              onClick={() => {
+                handleLayoutControl(label)
+              }}
+            >
+              <FontAwesomeIcon icon={icon} size='xl' />
+            </button>
+          )
+        })}
+      </div>
+    )
   }
 
   // // 把裁切遮罩放到選中的圖片上
@@ -421,6 +487,7 @@ const ToolBar = ({ fabricRef }: Props) => {
       <label> Tool Bar</label>
       <hr />
       <div className='toolGroup__container'>
+        <label className='title'> Free drawing or Select objects</label>
         <div className='toolGroup'>
           <button
             onClick={() => {
@@ -437,51 +504,13 @@ const ToolBar = ({ fabricRef }: Props) => {
             <FontAwesomeIcon icon={faHandPointer} size='xl' />
           </button>
         </div>
-        <div className='toolGroup'>
-          <button
-            onClick={() => {
-              setDBClickTarget('rect')
-              closeDrawingMode()
-            }}
-          >
-            <div className='rectIcon fill'></div>
-          </button>
-          <button
-            onClick={() => {
-              setDBClickTarget('emptyRect')
-              closeDrawingMode()
-            }}
-          >
-            <div className='rectIcon'></div>
-          </button>
-          <button
-            onClick={() => {
-              setDBClickTarget('tri')
-              closeDrawingMode()
-            }}
-          >
-            <div className='triangle'></div>
-          </button>
-          <button
-            onClick={() => {
-              setDBClickTarget('line')
-              closeDrawingMode()
-            }}
-          >
-            <div className='line'></div>
-          </button>
 
-          <button
-            onClick={() => {
-              setDBClickTarget('text')
-              closeDrawingMode()
-            }}
-          >
-            <FontAwesomeIcon icon={faFont} size='xl' />
-          </button>
-        </div>
+        {renderShapeText()}
+
+        <label className='title'> Object properties adjustment</label>
+
         <div className='toolGroup'>
-          <label> Color</label>
+          <label className='subTitle'> Color</label>
           <input
             type='color'
             id='colorpicker'
@@ -490,7 +519,7 @@ const ToolBar = ({ fabricRef }: Props) => {
           ></input>
         </div>
         <div className='toolGroup'>
-          <label> Width</label>
+          <label className='subTitle'> Width</label>
           <input
             type='range'
             min='1'
@@ -500,7 +529,7 @@ const ToolBar = ({ fabricRef }: Props) => {
           ></input>
         </div>
         <div className='toolGroup'>
-          <label> Opacity</label>
+          <label className='subTitle'> Opacity</label>
           <input
             type='range'
             min='1'
@@ -509,37 +538,9 @@ const ToolBar = ({ fabricRef }: Props) => {
             onChange={handleOpacityChange}
           ></input>
         </div>
-        <div className='toolGroup'>
-          <label> Layer</label>
-          <button
-            onClick={() => {
-              handleLayoutControl('toForward')
-            }}
-          >
-            <FontAwesomeIcon icon={faAngleUp} size='xl' />
-          </button>
-          <button
-            onClick={() => {
-              handleLayoutControl('toFront')
-            }}
-          >
-            <FontAwesomeIcon icon={faAnglesUp} size='xl' />
-          </button>
-          <button
-            onClick={() => {
-              handleLayoutControl('toBackward')
-            }}
-          >
-            <FontAwesomeIcon icon={faAngleDown} size='xl' />
-          </button>
-          <button
-            onClick={() => {
-              handleLayoutControl('toBack')
-            }}
-          >
-            <FontAwesomeIcon icon={faAnglesDown} size='xl' />
-          </button>
-        </div>
+
+        {renderLayerControl()}
+
         {/* <div className='toolGroup'>
           <label> Crop </label>
           <button onClick={handleClip}>
@@ -550,6 +551,8 @@ const ToolBar = ({ fabricRef }: Props) => {
           </button>
         </div> */}
 
+        <label className='title'> Clear all / Clear selected object</label>
+
         <div className='toolGroup'>
           <button onClick={clearCanvas}>
             <FontAwesomeIcon icon={faBroom} size='xl' />
@@ -559,7 +562,6 @@ const ToolBar = ({ fabricRef }: Props) => {
           </button>
         </div>
 
-        <hr />
         <div className='toolGroup'>
           <SaveFileBlock fabricRef={fabricRef} />
         </div>

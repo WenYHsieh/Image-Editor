@@ -2,8 +2,11 @@
   display: flex;
   flex-direction: column;
   width: 250px;
+  height: 100vh;
+  max-height: 100vh;
   background-color: #f2f2f2;
   color: #8b8b8b;
+  border-right: 1px solid #cdcfeb92;
   padding: 8px 16px;
   margin-right: 16px;
   position: relative;
@@ -12,6 +15,7 @@
 
   &.close {
     width: 20px;
+    padding: 0;
 
     .toolGroup__container {
       opacity: 0;
@@ -21,10 +25,6 @@
     hr {
       opacity: 0;
     }
-
-    .expandBtn {
-      left: 8px;
-    }
   }
 
   label {
@@ -33,6 +33,17 @@
     margin: 0 auto;
     text-align: center;
     transition: 0.7s;
+
+    &.title {
+      font-size: 16px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed #cdcfeb92;
+    }
+    &.subTitle {
+      font-size: 14px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed #cdcfeb92;
+    }
   }
 
   hr {
@@ -49,7 +60,7 @@
     overflow: hidden;
 
     .toolGroup {
-      margin: 16px 8px;
+      margin: 24px 8px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -113,24 +124,6 @@
       .saveFileBlock__wrapper {
         display: flex;
         flex-direction: column;
-
-        input {
-          height: 25px;
-          border: none;
-          border-bottom: 2px solid rgb(105, 105, 105, 0.7);
-          background-color: transparent;
-          transition: 0.7s;
-
-          &:focus {
-            outline: none;
-            border-bottom-color: #b1dfd971;
-          }
-
-          &:hover {
-            border-bottom-color: #b1dfd971;
-          }
-        }
-
         label {
           margin: 0;
           margin-bottom: 10px;
@@ -138,12 +131,33 @@
           text-align: left;
         }
 
-        button {
-          width: 50px;
-          height: 25px;
-          font-size: 16px;
-          margin-left: 16px;
-          margin-top: 8px;
+        .container {
+          display: flex;
+
+          input {
+            height: 25px;
+            border: none;
+            border-bottom: 1px solid #8b8b8b;
+            background-color: transparent;
+            transition: 0.7s;
+
+            &:focus {
+              outline: none;
+              border-bottom-color: #b1dfd971;
+            }
+
+            &:hover {
+              border-bottom-color: #b1dfd971;
+            }
+          }
+
+          button {
+            width: 50px;
+            height: 25px;
+            font-size: 16px;
+            margin-left: 16px;
+            margin-top: 8px;
+          }
         }
       }
     }
@@ -155,10 +169,11 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    border: 1px solid gray;
+    border: 1px solid #cdcfeb92;
     position: absolute;
-    top: 8px;
-    left: 242px;
+    top: 50%;
+    right: -15px;
+    transform: translateY(-50%);
     transition: 0.7s;
 
     &:hover {

@@ -3,13 +3,14 @@ body {
   height: 100vh;
   font-family: 'Ubuntu';
   font-weight: 400;
+  overflow: hidden;
 
   .layout {
     display: flex;
     justify-content: space-between;
 
     .canvas__wrapper {
-      width: 600px;
+      width: 500px;
       height: calc(100vh - 50px);
       transform: translateY(25px);
       box-shadow: rgba(0, 0, 0, 0.12) 0px 0px 9px 2px;
