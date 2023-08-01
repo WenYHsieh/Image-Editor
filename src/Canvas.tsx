@@ -59,7 +59,7 @@ const Canvas = React.forwardRef(
           <canvas
             id='canvas'
             ref={ref}
-            width='500px'
+            width={window.innerWidth - 700}
             height={window.innerHeight - 50}
             style={{ border: '1px solid #e3e2e2' }}
           />
