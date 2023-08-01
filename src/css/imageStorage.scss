@@ -47,14 +47,12 @@
   .image__blocks {
     width: 100%;
     position: absolute;
-    top: 0;
+    top: 70px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px;
     overflow: auto;
-    margin-top: 20px;
-    max-height: calc(100vh - 48px);
+    max-height: calc(100vh - 100px);
     opacity: 1;
     transition: 0.7s;
 
